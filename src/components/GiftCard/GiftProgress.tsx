@@ -6,22 +6,19 @@ interface GiftProgressProps {
   contributors: number;
 }
 
-export function GiftProgress({ total, remaining, contributors }: GiftProgressProps) {
+export function GiftProgress({ total, remaining }: GiftProgressProps) {
   const progress = ((total - remaining) / total) * 100;
   
   return (
-    <div className="space-y-2">
-      <div className="h-2 bg-gray-100 rounded-full overflow-hidden">
+    <div className="space-y-1">
+      <div className="h-1.5 bg-gray-100 rounded-full overflow-hidden">
         <div 
           className="h-full bg-gradient-to-r from-blue-400 to-blue-500 transition-all duration-500 ease-out"
           style={{ width: `${progress}%` }}
         />
       </div>
-      <div className="flex justify-between text-sm text-gray-600">
-        <span>
-          {contributors} contribuidor{contributors !== 1 ? 'es' : ''}
-        </span>
-        <span>{Math.round(progress)}% alcançado</span>
+      <div className="text-sm text-gray-500 text-center">
+        {Math.round(progress)}% alcançado
       </div>
     </div>
   );

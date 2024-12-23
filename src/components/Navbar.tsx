@@ -1,9 +1,11 @@
 import { Link, useLocation } from 'react-router-dom';
-import { Gift, Heart, UserCheck } from 'lucide-react';
+import { Gift, Heart, UserCheck, User } from 'lucide-react';
 import { cn } from '../lib/utils';
+import { useStore } from '../store/useStore';
 
 export function Navbar() {
   const location = useLocation();
+  const { isAdmin } = useStore();
 
   const links = [
     { to: '/', label: 'Casamento', icon: Heart },
@@ -35,6 +37,12 @@ export function Navbar() {
               );
             })}
           </div>
+          <Link
+            to={isAdmin ? "/admin" : "/login"}
+            className="inline-flex items-center px-1 pt-1 text-sm font-medium text-gray-500 hover:text-blue-400"
+          >
+            <User className="w-5 h-5" />
+          </Link>
         </div>
       </div>
     </nav>

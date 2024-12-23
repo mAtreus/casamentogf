@@ -12,8 +12,11 @@ export function formatCurrency(value: number): string {
   }).format(value);
 }
 
+export function formatCurrencyInput(value: number): string {
+  return `R$ ${value.toFixed(2).replace('.', ',')}`;
+}
+
 export function generatePixCode(value: number, key: string): string {
-  // Implement PIX code generation logic here
   return `00020126580014br.gov.bcb.pix0136${key}5204000053039865802BR5913Wedding Gift6009Sao Paulo62070503***63046123`;
 }
 

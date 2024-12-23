@@ -2,7 +2,7 @@ import { useEffect, useState } from 'react';
 import { collection, onSnapshot } from 'firebase/firestore';
 import { db } from '../lib/firebase';
 import { useStore } from '../store/useStore';
-import { GiftCard } from '../components/GiftCard';
+import { GiftCard } from '../components/GiftCard/index';
 import { PageLoading } from '../components/PageLoading';
 import { demoGifts } from '../lib/demo-data';
 import type { Gift } from '../types';
@@ -54,7 +54,7 @@ export function Gifts() {
       }}
     >
       <div className="min-h-screen bg-black/60 py-12 px-4">
-        <div className="max-w-[1600px] mx-auto">
+        <div className="max-w-[2000px] mx-auto">
           <div className="text-center mb-12">
             <h1 className="text-4xl font-bold text-white mb-4">
               Lista de Presentes
@@ -65,7 +65,7 @@ export function Gifts() {
             </p>
           </div>
 
-          <div className="grid grid-cols-2 md:grid-cols-4 gap-6">
+          <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 xl:grid-cols-5 2xl:grid-cols-6 gap-6">
             {gifts.map((gift) => (
               <GiftCard
                 key={gift.id}

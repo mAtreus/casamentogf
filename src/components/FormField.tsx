@@ -20,7 +20,7 @@ export const FormField = forwardRef<HTMLInputElement, FormFieldProps>(
           placeholder=" "
           {...props}
         />
-        <label className="absolute left-1/2 -translate-x-1/2 -top-6 text-base text-gray-500 transition-all pointer-events-none peer-focus:-top-6 peer-focus:text-white peer-placeholder-shown:top-4 peer-placeholder-shown:text-gray-500">
+        <label className="absolute left-1/2 -translate-x-1/2 -top-6 text-base text-gray-900 transition-all pointer-events-none peer-focus:-top-6 peer-focus:text-gray-900 peer-placeholder-shown:top-4 peer-placeholder-shown:text-gray-500">
           {label}
         </label>
         {error && (

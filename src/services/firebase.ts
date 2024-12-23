@@ -1,51 +1,35 @@
-import { ref, set, push, onValue, update } from 'firebase/database';
+import { collection, addDoc, getDocs, updateDoc, doc } from 'firebase/firestore';
 import { db } from '../lib/firebase';
 import type { RSVP, Gift } from '../types';
 
 // RSVP Functions
 export async function addRSVP(rsvp: Omit<RSVP, 'id'>) {
   try {
-    const rsvpsRef = ref(db, 'rsvps');
-    const newRsvpRef = push(rsvpsRef);
-    await set(newRsvpRef, {
+    const rsvpsRef = collection(db, 'rsvps');
+    const docRef = await addDoc(rsvpsRef, {
       ...rsvp,
       timestamp: new Date().toISOString(),
     });
-    return newRsvpRef.key;
+    return docRef.id;
   } catch (error) {
     console.error('Error adding RSVP:', error);
     throw error;
   }
 }
 
-export function subscribeToRSVPs(callback: (rsvps: RSVP[]) => void) {
-  const rsvpsRef = ref(db, 'rsvps');
-  return onValue(rsvpsRef, (snapshot) => {
-    const data = snapshot.val();
-    const rsvps = data ? Object.entries(data).map(([id, value]) => ({
-      id,
-      ...(value as Omit<RSVP, 'id'>),
-    })) : [];
-    callback(rsvps);
-  });
+export async function getRSVPs() {
+  const rsvpsRef = collection(db, 'rsvps');
+  const snapshot = await getDocs(rsvpsRef);
+  return snapshot.docs.map(doc => ({
+    id: doc.id,
+    ...doc.data()
+  })) as RSVP[];
 }
 
 // Gift Functions
 export async function updateGift(giftId: string, updates: Partial<Gift>) {
-  const giftRef = ref(db, `gifts/${giftId}`);
-  await update(giftRef, updates);
-}
-
-export function subscribeToGifts(callback: (gifts: Gift[]) => void) {
-  const giftsRef = ref(db, 'gifts');
-  return onValue(giftsRef, (snapshot) => {
-    const data = snapshot.val();
-    const gifts = data ? Object.entries(data).map(([id, value]) => ({
-      id,
-      ...(value as Omit<Gift, 'id'>),
-    })) : [];
-    callback(gifts);
-  });
+  const giftRef = doc(db, 'gifts', giftId);
+  await updateDoc(giftRef, updates);
 }
 
 export async function processGiftContribution(
@@ -53,26 +37,28 @@ export async function processGiftContribution(
   amount: number,
   contributorName: string
 ) {
-  const giftRef = ref(db, `gifts/${giftId}`);
-  const gift = await new Promise<Gift>((resolve) => {
-    onValue(giftRef, (snapshot) => {
-      resolve({ id: giftId, ...snapshot.val() } as Gift);
-    }, { onlyOnce: true });
-  });
+  const giftRef = doc(db, `gifts/${giftId}`);
+  const gift = await getDocs(collection(db, 'gifts'));
+  const giftData = gift.docs.find(doc => doc.id === giftId);
+  
+  if (!giftData) throw new Error('Gift not found');
+  
+  const giftInfo = { id: giftId, ...giftData.data() } as Gift;
 
-  const newRemainingPrice = gift.remainingPrice - amount;
-  const newContributors = gift.contributors + 1;
+  const newRemainingPrice = giftInfo.remainingPrice - amount;
+  const newContributors = giftInfo.contributors + 1;
   const newStatus = newRemainingPrice <= 0 ? 'received' : 'partial';
 
-  await update(giftRef, {
+  await updateDoc(giftRef, {
     remainingPrice: newRemainingPrice,
     contributors: newContributors,
     status: newStatus,
   });
 
   // Record the contribution
-  const contributionRef = ref(db, `contributions/${giftId}`);
-  await push(contributionRef, {
+  const contributionRef = collection(db, 'contributions');
+  await addDoc(contributionRef, {
+    giftId,
     contributorName,
     amount,
     timestamp: new Date().toISOString(),
